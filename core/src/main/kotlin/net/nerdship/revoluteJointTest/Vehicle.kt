@@ -38,7 +38,7 @@ class Wheel(
     val position: Vector2,
 
     val steering: Boolean = false,
-    val steeringSpeed: Float = 1f,
+    val steeringReactivity: Float = 1f, // 1f is instant, 0f is no reactivity
     val maximumSteeringAngle: Float = 0f,
 
     val maximumForwardSpeed: Float = 100f,
@@ -47,12 +47,13 @@ class Wheel(
     val maximumLateralImpulse: Float = 8.5f,
 
     val swivel: Boolean = false,
+    val logs: Boolean = false,
 ) {
     val body: Body
     var joint: RevoluteJoint? = null
 
-    val steeringSpeedRadians = steeringSpeed * MathUtils.degreesToRadians
-    val maximumSteeringAngleRadians = maximumSteeringAngle * MathUtils.degreesToRadians
+    val maximumSteeringAngleRadians = MathUtils.PI + maximumSteeringAngle * MathUtils.degreesToRadians
+    val minimumSteeringAngleRadians = MathUtils.PI - maximumSteeringAngle * MathUtils.degreesToRadians
 
     init {
         body = physicsWorld.body(BodyDef.BodyType.DynamicBody) {
@@ -134,7 +135,7 @@ class Vehicle(
                 }
             }
 
-            angularDamping = 3f
+            angularDamping = 0f
         }
 
         val massData = body.massData
@@ -174,23 +175,16 @@ class Vehicle(
 
         wheels.forEach {
             if (it.steering) {
-                val desiredAngle = direction.coerceIn(-it.maximumSteeringAngleRadians, it.maximumSteeringAngleRadians)
+                val desiredAngle = direction.coerceIn(it.minimumSteeringAngleRadians, it.maximumSteeringAngleRadians)
 
-                var jointAngle = it.joint?.jointAngle ?: 0f
+                val jointAngle = it.joint?.jointAngle ?: 0f
+                val newAngle = if (it.swivel) MathUtils.lerpAngle(jointAngle, desiredAngle, it.steeringReactivity) else MathUtils.lerp(jointAngle, desiredAngle, it.steeringReactivity)
 
-                if (it.swivel) {
-                    val angleDifference = desiredAngle - jointAngle
-                    if (abs(angleDifference) > MathUtils.PI) {
-                        jointAngle += sign(angleDifference) * MathUtils.PI2
-                    }
-                }
-
-                var newAngle = MathUtils.lerp(jointAngle, desiredAngle, it.steeringSpeedRadians)
-                if (abs(newAngle) > MathUtils.PI) {
-                    newAngle -= sign(newAngle) * MathUtils.PI2
-                }
+                if (it.logs) log.debug { "newAngle: $newAngle" }
 
                 it.joint?.setLimits(newAngle, newAngle)
+
+                if (it.logs) log.debug { "########" }
             }
         }
     }

@@ -48,16 +48,25 @@ class FirstScreen : KtxScreen {
         floatArrayOf(0f, 0f, 22.9610f, -55.4327f, 0f, -100f, -22.9610f, -55.4327f),
         floatArrayOf(0f, 0f, 55.4327f, -22.9610f, 70.7106f, -70.7106f, 22.9610f, -55.4327f),
     ), vec2(0f, 0f), listOf(
-        Wheel(physicsWorld, position = vec2(70f, 0f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(49.4974f, 49.4974f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(0f, 70f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(-49.4974f, 49.4974f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(-70f, 0f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(-49.4974f, -49.4974f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(0f, -70f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(49.4974f, -49.4974f), true, 0.5f, 360f, 0f, 0f, 0f, 3.5f, true),
-        Wheel(physicsWorld, position = vec2(0f, 0f), true, 0.5f, 360f, 300f, -100f, 20000f, swivel = false),
+        Wheel(physicsWorld, position = vec2(70f, 0f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true),
+        Wheel(physicsWorld, position = vec2(49.4974f, 49.4974f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true),
+        Wheel(physicsWorld, position = vec2(0f, 70f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true),
+        Wheel(physicsWorld, position = vec2(-49.4974f, 49.4974f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true),
+        Wheel(physicsWorld, position = vec2(-70f, 0f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true),
+        Wheel(physicsWorld, position = vec2(-49.4974f, -49.4974f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true),
+        Wheel(physicsWorld, position = vec2(0f, -70f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true),
+        Wheel(physicsWorld, position = vec2(49.4974f, -49.4974f), true, 0.05f, 360f, 0f, 0f, 0f, 3.5f, true, logs = true),
+        Wheel(physicsWorld, position = vec2(0f, 0f), true, 0.1f, 360f, 300f, -100f, 20000f, swivel = false),
     ))
+
+//    var testVehicleBike = Vehicle(physicsWorld, listOf(
+//        floatArrayOf(-3f, 10f, 3f, 10f, 3f, -10f, -3f, -10f),
+//    ), vec2(0f, 0f), listOf(
+//        Wheel(physicsWorld, position = vec2(0f, 10f), true, 0.7f, 100f, 650f, -80f, 1800f),
+//        Wheel(physicsWorld, position = vec2(0f, -10f), false, 0f, 0f, 0f, 0f, 0f),
+//    ))
+
+    val testVehicle = testVehicleStar
 
     override fun show() {
         viewport.camera.position.set(vec3(0f, 0f, 0f))
@@ -71,12 +80,12 @@ class FirstScreen : KtxScreen {
 
         val mousePosition = viewport.camera.unproject(vec3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat()))
 
-        val ab = vec2(mousePosition.x - testVehicleStar.body.position.x, mousePosition.y - testVehicleStar.body.position.y)
-        val v = vec2(cos(testVehicleStar.body.angle + MathUtils.HALF_PI), sin(testVehicleStar.body.angle + MathUtils.HALF_PI))
+        val ab = vec2(mousePosition.x - testVehicle.body.position.x, mousePosition.y - testVehicle.body.position.y)
+        val v = vec2(cos(testVehicle.body.angle + MathUtils.HALF_PI), sin(testVehicle.body.angle + MathUtils.HALF_PI))
 
-        val abvAngle = ab.angleRad(v) % MathUtils.PI
+        val abvAngle = ab.angleRad(v) + MathUtils.PI
 
-        testVehicleStar.update(0, abvAngle) // ISSUE: The issue lies inside this method
+        testVehicle.update(0, abvAngle) // ISSUE: The issue lies inside this method
         physicsWorld.step(delta, 6, 2)
 
         debugRenderer.render(physicsWorld, viewport.camera.combined)

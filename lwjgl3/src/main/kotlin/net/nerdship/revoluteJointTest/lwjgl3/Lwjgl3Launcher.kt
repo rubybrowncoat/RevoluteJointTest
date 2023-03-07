@@ -12,5 +12,6 @@ fun main() {
         setTitle("RevoluteJointTest")
         setWindowedMode(640, 480)
         setWindowIcon(*(arrayOf(128, 64, 32, 16).map { "libgdx$it.png" }.toTypedArray()))
+//        setForegroundFPS(2) // Testing at low fps makes logs easier to read
     })
 }
